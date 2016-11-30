@@ -1,0 +1,8 @@
+server {
+  listen                 *:8675; # 309 (Jenny)
+
+  location = /nginx_stub_status {
+    stub_status on;
+    access_log off;
+  }
+}

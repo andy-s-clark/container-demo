@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: demo-gateway
+    version: 1.11.6-1
+  name: demo-gateway
+  namespace: container-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-gateway
+      version: 1.11.6-1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: demo-gateway
+        version: 1.11.6-1
+      name: demo-gateway
+    spec:
+      containers:
+      - name: demo-gateway
+        env:
+        - name: FRONTEND_HOST
+          value: demo-frontend
+        - name: FRONTEND_HOSTPORT
+          value: "3000"
+        image: docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10

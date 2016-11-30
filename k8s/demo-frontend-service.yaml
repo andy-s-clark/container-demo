@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-frontend
+  namespace: container-demo
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: demo-frontend
+  type: NodePort

@@ -1,9 +1,6 @@
-# Usage
-# docker build -t build-nginx:1.10.2 .
-# docker run -d -p 8000:80 build-nginx:1.10.2
-# curl -is http://localhost:8000/healthz
-FROM nginx:1.10.2
+FROM nginx:1.11.6-alpine
 
+COPY bin/envsubst /usr/local/bin
 COPY docker-entrypoint.sh /opt/
 COPY docker-entrypoint.d/* /opt/docker-entrypoint.d/
 ONBUILD COPY docker-entrypoint.d/* /opt/docker-entrypoint.d/

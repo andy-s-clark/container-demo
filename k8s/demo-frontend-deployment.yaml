@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: demo-frontend
+    version: 0.0.1
+  name: demo-frontend
+  namespace: container-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-frontend
+      version: 0.0.1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: demo-frontend
+        version: 0.0.1
+      name: demo-frontend
+    spec:
+      containers:
+      - name: demo-frontend
+        env:
+        - name: PORT
+          value: "3000"
+        image: docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10

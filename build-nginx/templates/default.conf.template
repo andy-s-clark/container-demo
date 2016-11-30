@@ -5,5 +5,4 @@ server {
     location /healthz {
         return 204;
     }
-
 }
