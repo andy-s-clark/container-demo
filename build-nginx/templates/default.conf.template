@@ -3,6 +3,7 @@ server {
     server_name  localhost;
 
     location /healthz {
-        return 204;
+        add_header Content-Type text/html;
+        return 200 'imok';
     }
 }

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Update all images
+
+echo "build-nginx"
+docker build -t build-nginx:1.11.6-1 build-nginx
+docker tag build-nginx:1.11.6-1 docker-registry-dev.impdir.com/container-demo/build-nginx:1.11.6-1
+docker push docker-registry-dev.impdir.com/container-demo/build-nginx:1.11.6-1
+
+echo "build-node"
+docker build -t build-node:7.2.0-1 build-node
+docker tag build-node:7.2.0-1 docker-registry-dev.impdir.com/container-demo/build-node:7.2.0-1
+docker push docker-registry-dev.impdir.com/container-demo/build-node:7.2.0-1
+
+echo "butter-service"
+docker build -t butter-service butter-service
+docker tag butter-service docker-registry-dev.impdir.com/container-demo/butter-service:0.0.1
+docker push docker-registry-dev.impdir.com/container-demo/butter-service:0.0.1
+
+echo "demo-frontend"
+docker build -t demo-frontend demo-frontend
+docker tag demo-frontend docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.1
+docker push docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.1
+
+echo "demo-gateway"
+docker build -t demo-gateway demo-gateway
+docker tag demo-gateway docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-1
+docker push docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-1

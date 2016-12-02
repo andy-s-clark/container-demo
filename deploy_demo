@@ -1,0 +1,11 @@
+#!/bin/bash
+
+kubectl create namespace container-demo
+kubectl create -f k8s/butter-service-service.yaml
+kubectl create -f k8s/butter-service-deployment.yaml
+kubectl create -f k8s/demo-frontend-service.yaml
+kubectl create -f k8s/demo-frontend-deployment.yaml
+kubectl create -f k8s/demo-gateway-service.yaml
+kubectl create -f k8s/demo-gateway-deployment.yaml
+
+kubectl describe services --namespace=container-demo

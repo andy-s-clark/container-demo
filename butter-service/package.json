@@ -1,11 +1,10 @@
 {
-  "name": "demo-frontend",
+  "name": "butter-service",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.14.0",
-    "moment": "^2.17.0"
+    "express": "^4.14.0"
   },
   "devDependencies": {
     "gulp": "^3.9.1"
