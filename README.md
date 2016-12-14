@@ -9,23 +9,15 @@ It only provides a health check as-is.
 Images using this base can place templates in a "templates" sub-folder and
 entrypoint scripts in `docker-entrypoint.d`.
 
-Assuming go is installed, the binary `bin/envsubst` can be recreated from
-github.com/a8m/envsubst/cmd/envsubst.
-
-    mkdir go_tmp
-    GOPATH=$(pwd)/go_tmp go get github.com/a8m/envsubst/cmd/envsubst
-    cp go_tmp/bin/envsubst bin
-    rm -rf go_tmp
-
 #### Local Docker
 
-    docker build -t build-nginx:1.11.6-1 .
-    docker run -d -p 8100:80 build-nginx:1.11.6-1
+    docker build -t build-nginx:1.11.6-2 .
+    docker run -d -p 8100:80 build-nginx:1.11.6-2
     curl -isS http://localhost:8100/healthz
 
 #### Push image to docker-registry-dev.impdir.com
-    docker tag build-nginx:1.11.6-1 docker-registry-dev.impdir.com/container-demo/build-nginx:1.11.6-1
-    docker push docker-registry-dev.impdir.com/container-demo/build-nginx:1.11.6-1
+    docker tag build-nginx:1.11.6-2 docker-registry-dev.impdir.com/container-demo/build-nginx:1.11.6-2
+    docker push docker-registry-dev.impdir.com/container-demo/build-nginx:1.11.6-2
 
 ### build-node
 build-nginx is a base NodeJS install. It does not do anything useful as-is.
@@ -96,20 +88,19 @@ This may to be done if docker is running in a VM (Mac/MS Win)
     docker push docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.1
 
 ### demo-gateway
-Uses the base image `build-nginx`. Adds the endpoint /test that returns the text
-contained in the environment variable "TEST_TEXT".
+Uses the base image `build-nginx`. Proxies requests to the frontend.
 
 #### Local Docker
 
     docker build -t demo-gateway .
 
     # Test locally
-    docker run -d -p 8101:80 -p 8675:8675 -e TEST_TEXT='This is the demo-gateway' demo-gateway
+    docker run -d -p 8101:80 -p 8675:8675 demo-gateway
     curl -isS http://localhost:8101/healthz
 
 #### Push image to docker-registry-dev.impdir.com
-    docker tag demo-gateway docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-1
-    docker push docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-1
+    docker tag demo-gateway docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-2
+    docker push docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-2
 
 ## Kubernetes and minikube
 

@@ -1,6 +1,5 @@
 FROM nginx:1.11.6-alpine
 
-COPY bin/envsubst /usr/local/bin
 COPY docker-entrypoint.sh /opt/
 COPY docker-entrypoint.d/* /opt/docker-entrypoint.d/
 ONBUILD COPY docker-entrypoint.d/* /opt/docker-entrypoint.d/

@@ -8,7 +8,9 @@ app.get('/healthz', function(req, res) {
 
 app.get('/', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
-  res.send(JSON.stringify({ hasSalt: true, butterType: 'whey' }));
+  res.send(JSON.stringify({
+    hasSalt: true,
+    butterType: process.env.BUTTER_TYPE || 'organic' }));
 });
 
 app.listen(port, function() {
