@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: build-cloud
+    version: 0.0.1
+  name: build-cloud
+  namespace: container-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: build-cloud
+      version: 0.0.1
+  template:
+    metadata:
+      labels:
+        app: build-cloud
+        version: 0.0.1
+      name: build-cloud
+    spec:
+      containers:
+      - name: build-cloud
+        env:
+        - name: PORT
+          value: "3000"
+        - name: MAX_SIDECAR_STARTUP_RETRY
+          value: "60"
+        image: docker-registry-dev.impdir.com/container-demo/build-cloud:1
+        livenessProbe:
+          httpGet:
+            path: /api/info
+            port: 3000
+          initialDelaySeconds: 25
+          timeoutSeconds: 1
+      - name: build-sidecar-node-store
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        image: docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 5
+          timeoutSeconds: 1

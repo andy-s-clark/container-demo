@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: sidecar-test
+    version: 0.0.1
+  name: sidecar-test
+  namespace: container-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sidecar-test
+      version: 0.0.1
+  template:
+    metadata:
+      labels:
+        app: sidecar-test
+        version: 0.0.1
+      name: sidecar-test
+    spec:
+      containers:
+      - name: build-sidecar-node-store
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "dev"
+        image: docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:1

@@ -105,7 +105,7 @@ Uses the base image `build-nginx`. Proxies requests to the frontend.
 ## Kubernetes and minikube
 
 ### Install kubernetes locally
-Get [`kubectl` and place in the system path](http://kubernetes.io/docs/getting-started-guides/minikube/#install-kubectl)
+Get [`kubectl` and place in the system path](http://kubernetes.io/docs/getting-started-guides/minikube/#installation)
 
 * https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/darwin/amd64/kubectl
 * https://storage.googleapis.com/kubernetes-release/release/v1.4.6/bin/linux/amd64/kubectl
@@ -126,10 +126,12 @@ Optionally install using a CI build for the latest features
 Start minikube, using the [rkt runtime](https://coreos.com/rkt/)
 
     minikube start \
+    --cpus 4 \
+    --memory 4096 \
     --network-plugin=cni \
     --container-runtime=rkt \
     --iso-url=http://storage.googleapis.com/minikube/iso/buildroot/minikube-v0.0.6.iso \
-    --extra-config=kubelet.MaxPods=20
+    --extra-config=kubelet.MaxPods=30
 
 #### Verify that the node is up
 
@@ -142,12 +144,8 @@ Start minikube, using the [rkt runtime](https://coreos.com/rkt/)
     $ minikube dashboard --url
     http://192.168.99.100:30000
 
-### Enable heapster
-
-    $ minikube addons enable heapster
-    heapster was successfully enabled
-
 ### Get the URL of heapster's grafana service
+_Optional_
 
     $ minikube service --namespace kube-system monitoring-grafana --url
     http://192.168.99.100:31808
@@ -166,7 +164,7 @@ Delete the applications, services and namespace.
     $ ./undeploy_demo
 
 ### Create namespace
-Optional, but it will keep things nice and clean.
+Keeps things nice and clean.
 
     $ kubectl create namespace container-demo
     namespace "container-demo" created
@@ -315,3 +313,33 @@ Note that the NodePort (30472 in this case) is the same as the port that was ret
 
     $ kubectl logs --namespace=container-demo -f butter-service-3112725090-11vd7
     butter-service listening on port 3000
+
+### Run build-cloud with a sidecar
+
+#### Build images
+_Optional, you can use the images that have already been pushed to the registry_
+
+##### build-sidecar-node-store
+Follow the instructions in [api-gateway branch container-demo](https://github.com/buildcom/api-gateway/blob/container-demo/build-sidecars/build-sidecar-node-store/docker.md)
+    mvn install -DskipTests
+    docker build -t build-sidecar-node-store .
+    docker tag build-sidecar-node-store docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:1
+    docker push docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:1
+
+##### build-cloud                                                          
+Follow the instructions in [build-cloud branch container-demo](https://github.com/buildcom/build-cloud/blob/container-demo/docs/docker.md)
+
+    cp ~/.ssh/id_rsa build/deploy/docker/ssh/id_rsa
+    docker build -t build-cloud .
+    docker tag build-cloud docker-registry-dev.impdir.com/container-demo/build-cloud:1
+    docker push docker-registry-dev.impdir.com/container-demo/build-cloud:1
+
+#### Create build-cloud service
+
+    $ kubectl create -f k8s/build-cloud-service.yaml
+    service "build-cloud" created
+
+#### Create build-cloud deployment
+
+    $ kubectl create -f k8s/build-cloud-deployment.yaml
+    deployment "build-cloud" created
