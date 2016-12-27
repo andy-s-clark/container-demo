@@ -320,19 +320,26 @@ Note that the NodePort (30472 in this case) is the same as the port that was ret
 _Optional, you can use the images that have already been pushed to the registry_
 
 ##### build-sidecar-node-store
-Follow the instructions in [api-gateway branch container-demo](https://github.com/buildcom/api-gateway/blob/container-demo/build-sidecars/build-sidecar-node-store/docker.md)
+See the
+[api-gateway repo](https://github.com/buildcom/api-gateway/blob/master/build-sidecars/build-sidecar-node-store/docker.md)
+for more information
+
+    cd ~/work/api-gateway/build-sidecars/build-sidecar-node-store
     mvn install -DskipTests
     docker build -t build-sidecar-node-store .
-    docker tag build-sidecar-node-store docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:1
-    docker push docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:1
+    docker tag build-sidecar-node-store docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:3
+    docker push docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:3
 
 ##### build-cloud                                                          
-Follow the instructions in [build-cloud branch container-demo](https://github.com/buildcom/build-cloud/blob/container-demo/docs/docker.md)
+See the
+[build-cloud repo](https://github.com/buildcom/build-cloud/blob/master/docs/docker.md)
+for more information. Especially to why your SSH has to be copied (ewww).
 
+    cd ~/work/build-cloud
     cp ~/.ssh/id_rsa build/deploy/docker/ssh/id_rsa
     docker build -t build-cloud .
-    docker tag build-cloud docker-registry-dev.impdir.com/container-demo/build-cloud:1
-    docker push docker-registry-dev.impdir.com/container-demo/build-cloud:1
+    docker tag build-cloud docker-registry-dev.impdir.com/container-demo/build-cloud:2
+    docker push docker-registry-dev.impdir.com/container-demo/build-cloud:2
 
 #### Create build-cloud service
 

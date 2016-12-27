@@ -24,4 +24,4 @@ spec:
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "dev"
-        image: docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:1
+        image: docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:3
