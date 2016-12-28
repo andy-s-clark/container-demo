@@ -29,11 +29,9 @@ spec:
         env:
         - name: PORT
           value: "3000"
-        - name: BUTTER_SERVICE_HOST
-          value: "butter-service"
-        - name: BUTTER_SERVICE_HOST_PORT
-          value: "80"
-        image: docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.1
+        - name: BUTTER_SERVICE_URL
+          value: "http://butter-service/"
+        image: docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.3
         imagePullPolicy: Always
         readinessProbe:
           httpGet:

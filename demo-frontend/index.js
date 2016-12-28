@@ -1,10 +1,9 @@
 const express = require('express'),
-      http    = require('http'),
+      request = require('request'),
       app     = express(),
       port    = process.env.PORT || 3000,
-      buildInfo             = require('./build_info.json'),
-      butterServiceHost     = process.env.BUTTER_SERVICE_HOST || 'localhost',
-      butterServiceHostPort = process.env.BUTTER_SERVICE_HOST_PORT || 8103;
+      buildInfo        = require('./build_info.json'),
+      butterServiceUrl = process.env.BUTTER_SERVICE_URL || 'http://localhost:8103/';
 
 app.get('/healthz', function(req, res) {
   res.send('imok');
@@ -19,25 +18,21 @@ app.get('/', function(req, res) {
 });
 
 app.get('/butter', function(req, res) {
-  http.get({
-      host: butterServiceHost,
-      port: butterServiceHostPort,
-      path: '/',
-      timeout: 3000
-    }, function(serviceResponse){
-      var buffer = '';
-      serviceResponse.on('data', function(chunk) {
-        buffer += chunk;
-      });
-      serviceResponse.on('end', function() {
-        res.setHeader('Content-Type', 'application/json');
-        res.send(buffer);
-      });
-    }).on('error', function(err) {
-      console.log('Error in GET for '+butterServiceHost+' on port '+butterServiceHostPort);
-      console.log(err);
-      res.send(err);
-    });
+  request(butterServiceUrl, function(error, serviceResponse, body) {
+    if (error) {
+      console.log('Error in GET for '+butterServiceUrl);
+      console.log(error);
+      res.send(error);
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.send(body);
+    }
+  });
+});
+
+app.get('/die', function(req, res) {
+  console.log('I am going to quickly die. This message may not be written.');
+  process.exit(1);
 });
 
 app.listen(port, function() {

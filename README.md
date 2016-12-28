@@ -41,7 +41,10 @@ NodeJS service that returns a meaningless "butter" object.
 #### Local Node.js Development
 
     npm install
-    node index.js
+    PORT=3001 node index.js
+
+    # Test locally
+    curl -isS http://localhost:3001/healthz
 
 #### Local Docker
 
@@ -69,10 +72,11 @@ port `8103` on `localhost`.
     npm install
     node index.js
 
-The host and port for `butter-service` can be set using environment variables.
-This may to be done if docker is running in a VM (Mac/MS Win)
+The host (`BUTTER_SERVICE_HOST`) and/or port (`BUTTER_SERVICE_HOST_PORT`) for
+`butter-service` can be set using environment variables. This may need to be
+done to connect to docker running in a VM (Mac/MS Win).
 
-    BUTTER_SERVICE_HOST=172.0.0.100 BUTTER_SERVICE_HOST_PORT=3001 index.js
+    BUTTER_SERVICE_URL='http://localhost:3001' PORT=3002 node index.js
 
 
 #### Local Docker
@@ -84,8 +88,8 @@ This may to be done if docker is running in a VM (Mac/MS Win)
     curl -isS http://localhost:8102/healthz
 
 #### Push image to docker-registry-dev.impdir.com
-    docker tag demo-frontend docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.1
-    docker push docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.1
+    docker tag demo-frontend docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.3
+    docker push docker-registry-dev.impdir.com/container-demo/demo-frontend:0.0.3
 
 ### demo-gateway
 Uses the base image `build-nginx`. Proxies requests to the frontend.
