@@ -26,16 +26,10 @@ spec:
     spec:
       containers:
       - name: demo-gateway
-        env:
-        - name: FRONTEND_HOST_NAME
-          value: demo-frontend
-        - name: FRONTEND_HOST_PORT
-          value: "80"
-        image: docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-1
+        image: docker-registry-dev.impdir.com/container-demo/demo-gateway:0.0.1
         imagePullPolicy: Always
         readinessProbe:
           httpGet:
             path: /healthz
             port: 80
           timeoutSeconds: 1
-      restartPolicy: Always

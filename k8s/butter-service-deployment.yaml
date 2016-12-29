@@ -29,12 +29,9 @@ spec:
         env:
         - name: PORT
           value: "3000"
-        image: docker-registry-dev.impdir.com/container-demo/butter-service:0.0.1
-        imagePullPolicy: Always
+        image: docker-registry-dev.impdir.com/container-demo/butter-service:0.0.2
         readinessProbe:
           httpGet:
             path: /healthz
             port: 3000
           timeoutSeconds: 1
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30

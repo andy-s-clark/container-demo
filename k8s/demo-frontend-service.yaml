@@ -5,7 +5,7 @@ metadata:
   namespace: container-demo
 spec:
   ports:
-    - port: 80
+    - port: 8102
       targetPort: 3000
   selector:
     app: demo-frontend

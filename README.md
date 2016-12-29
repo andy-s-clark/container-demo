@@ -20,7 +20,7 @@ entrypoint scripts in `docker-entrypoint.d`.
     docker push docker-registry-dev.impdir.com/container-demo/build-nginx:1.11.6-2
 
 ### build-node
-build-nginx is a base NodeJS install. It does not do anything useful as-is.
+build-node is a base NodeJS install. It does not do anything useful as-is.
 
 Images using this base have a non-privileged user and a directory for the
 application created.
@@ -50,13 +50,13 @@ NodeJS service that returns a meaningless "butter" object.
 
     docker build -t butter-service .
 
-    # Test locally
+    # Test
     docker run -d -p 8103:3000 butter-service
     curl -isS http://localhost:8103/healthz
 
 #### Push image to docker-registry-dev.impdir.com
-    docker tag butter-service docker-registry-dev.impdir.com/container-demo/butter-service:0.0.1
-    docker push docker-registry-dev.impdir.com/container-demo/butter-service:0.0.1
+    docker tag butter-service docker-registry-dev.impdir.com/container-demo/butter-service:0.0.2
+    docker push docker-registry-dev.impdir.com/container-demo/butter-service:0.0.2
 
 ### demo-frontend
 Simple NodeJS application with the following endpoints:
@@ -66,24 +66,22 @@ Simple NodeJS application with the following endpoints:
 
 
 #### Local Node.js Development
-Requires that `butter-service` is running in docker and bound to
-port `8103` on `localhost`.
+Requires that `butter-service` is running locally and bound to port `3001`, if
+you want to access the `/butter` route. The environment variable
+`BUTTER_SERVICE_URL` can be set to point to where ever the butter service is
+running.
 
     npm install
-    node index.js
+    BUTTER_SERVICE_URL=http://localhost:3001/ PORT=3002 node index.js
 
-The host (`BUTTER_SERVICE_HOST`) and/or port (`BUTTER_SERVICE_HOST_PORT`) for
-`butter-service` can be set using environment variables. This may need to be
-done to connect to docker running in a VM (Mac/MS Win).
-
-    BUTTER_SERVICE_URL='http://localhost:3001' PORT=3002 node index.js
-
+    # Test locally
+    curl -isS http://localhost:3002/healthz
 
 #### Local Docker
 
     docker build -t demo-frontend .
 
-    # Test locally
+    # Test
     docker run -d -p 8102:3000 demo-frontend
     curl -isS http://localhost:8102/healthz
 
@@ -99,12 +97,12 @@ Uses the base image `build-nginx`. Proxies requests to the frontend.
     docker build -t demo-gateway .
 
     # Test locally
-    docker run -d -p 8101:80 -p 8675:8675 demo-gateway
+    docker run -d -p 8101:80 -p 8675:8675 -e FRONTEND_HOST_NAME=localhost demo-gateway
     curl -isS http://localhost:8101/healthz
 
 #### Push image to docker-registry-dev.impdir.com
-    docker tag demo-gateway docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-2
-    docker push docker-registry-dev.impdir.com/container-demo/demo-gateway:1.11.6-2
+    docker tag demo-gateway docker-registry-dev.impdir.com/container-demo/demo-gateway:0.0.1
+    docker push docker-registry-dev.impdir.com/container-demo/demo-gateway:0.0.1
 
 ## Kubernetes and minikube
 
@@ -156,17 +154,6 @@ _Optional_
 
 ## Deploy container-demo to Kubernetes
 
-### Quickstart
-Create a namespace, add services and deploy applications. Not very informative,
-but it will quickly deploy everything.
-
-    $ ./deploy_demo
-
-#### Undo the Quickstart
-Delete the applications, services and namespace.
-
-    $ ./undeploy_demo
-
 ### Create namespace
 Keeps things nice and clean.
 
@@ -184,6 +171,26 @@ Use service type `NodePort` rather than `ClusterIP` to allow external debugging.
     $ kubectl create -f k8s/butter-service-deployment.yaml
     deployment "butter-service" created
 
+### Verify that butter-service pods are running
+
+    $ kubectl --namespace=container-demo get pods
+    NAME                              READY     STATUS    RESTARTS   AGE
+    butter-service-2870242483-4k5qb   1/1       Running   0          2m
+    butter-service-2870242483-cdgmw   1/1       Running   0          2m
+
+### Verify butter-service service
+
+    $ curl -isS $(minikube --namespace=container-demo service butter-service --url)/healthz
+    HTTP/1.1 200 OK
+    X-Powered-By: Express
+    Content-Type: text/html; charset=utf-8
+    Content-Length: 4
+    ETag: W/"4-QGpd7eTGL69Gy1/1xXSFbg"
+    Date: Thu, 29 Dec 2016 00:52:28 GMT
+    Connection: keep-alive
+
+    imok
+
 ### Create demo-frontend service
 Use service type `NodePort` rather than `ClusterIP` to allow external debugging.
 
@@ -195,23 +202,29 @@ Use service type `NodePort` rather than `ClusterIP` to allow external debugging.
     $ kubectl create -f k8s/demo-frontend-deployment.yaml
     deployment "demo-frontend" created
 
+### Verify that demo-frontend pods are running
+
+    $ kubectl --namespace=container-demo get pods
+    NAME                              READY     STATUS    RESTARTS   AGE
+    butter-service-2870242483-4k5qb   1/1       Running   0          4m
+    butter-service-2870242483-cdgmw   1/1       Running   0          4m
+    demo-frontend-1867213484-44tl6    1/1       Running   0          26s
+    demo-frontend-1867213484-6tk15    1/1       Running   0          26s
+
 ### Verify demo-frontend service
 Using `NodePort` allows connecting to the service from outside the cluster.
 Get and query the url
 
-    $ minikube service --namespace container-demo demo-frontend --url
-    http://192.168.99.100:31021
-    $ curl -isS http://192.168.99.100:31021/healthz
+    $ curl -isS $(minikube --namespace=container-demo service demo-frontend --url)/healthz
     HTTP/1.1 200 OK
     X-Powered-By: Express
     Content-Type: text/html; charset=utf-8
     Content-Length: 4
     ETag: W/"4-QGpd7eTGL69Gy1/1xXSFbg"
-    Date: Fri, 02 Dec 2016 01:33:22 GMT
+    Date: Thu, 29 Dec 2016 00:54:49 GMT
     Connection: keep-alive
 
     imok
-
 
 ### Create demo-gateway service
 
@@ -223,15 +236,28 @@ Get and query the url
     $ kubectl create -f k8s/demo-gateway-deployment.yaml
     deployment "demo-gateway" created
 
+### Verify that demo-frontend pods are running
+
+    $ kubectl --namespace=container-demo get pods
+    NAME                              READY     STATUS    RESTARTS   AGE
+    butter-service-2870242483-4k5qb   1/1       Running   0          7m
+    butter-service-2870242483-cdgmw   1/1       Running   0          7m
+    demo-frontend-1867213484-44tl6    1/1       Running   0          2m
+    demo-frontend-1867213484-6tk15    1/1       Running   0          2m
+    demo-gateway-3722071730-fn8rd     1/1       Running   0          39s
+
 ### Verify demo-gateway service
 
-    minikube service --namespace container-demo demo-gateway --url
-    http://192.168.99.100:30472
-    $ curl -isS http://192.168.99.100:30472/healthz
-    HTTP/1.1 204 No Content
+    $ curl -isS $(minikube --namespace=container-demo service demo-gateway --url)/healthz
+    HTTP/1.1 200 OK
     Server: nginx/1.11.6
-    Date: Fri, 02 Dec 2016 01:34:47 GMT
+    Date: Thu, 29 Dec 2016 00:56:47 GMT
+    Content-Type: application/octet-stream
+    Content-Length: 4
     Connection: keep-alive
+    Content-Type: text/html
+
+    imok
 
 ### Test the full stack
 

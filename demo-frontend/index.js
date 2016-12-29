@@ -3,7 +3,7 @@ const express = require('express'),
       app     = express(),
       port    = process.env.PORT || 3000,
       buildInfo        = require('./build_info.json'),
-      butterServiceUrl = process.env.BUTTER_SERVICE_URL || 'http://localhost:8103/';
+      butterServiceUrl = process.env.BUTTER_SERVICE_URL || 'http://butter-service:8103/';
 
 app.get('/healthz', function(req, res) {
   res.send('imok');
