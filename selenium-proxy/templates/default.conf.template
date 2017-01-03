@@ -1,0 +1,14 @@
+server {
+    listen       ${PORT};
+
+    location /healthz {
+        add_header Content-Type text/html;
+        return 200 'imok';
+    }
+
+    location / {
+      resolver             ${PROXY_RESOLVER};
+      proxy_pass           http://${DOLLAR_SIGN}http_host${DOLLAR_SIGN}uri${DOLLAR_SIGN}is_args${DOLLAR_SIGN}args;
+      proxy_set_header     True-Client-IP ${TRUE_CLIENT_IP};
+    }
+}
