@@ -357,19 +357,60 @@ for more information
     cd ~/work/api-gateway/build-sidecars/build-sidecar-node-store
     mvn install -DskipTests
     docker build -t build-sidecar-node-store .
-    docker tag build-sidecar-node-store docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:3
-    docker push docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:3
+    docker tag build-sidecar-node-store docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:4
+    docker push docker-registry-dev.impdir.com/container-demo/build-sidecar-node-store:4
 
 ##### build-cloud                                                          
 See the
 [build-cloud repo](https://github.com/buildcom/build-cloud/blob/master/docs/docker.md)
-for more information. Especially to why your SSH has to be copied (ewww).
+for more information.
 
     cd ~/work/build-cloud
-    cp ~/.ssh/id_rsa build/deploy/docker/ssh/id_rsa
     docker build -t build-cloud .
-    docker tag build-cloud docker-registry-dev.impdir.com/container-demo/build-cloud:2
-    docker push docker-registry-dev.impdir.com/container-demo/build-cloud:2
+    docker tag build-cloud docker-registry-dev.impdir.com/container-demo/build-cloud:3
+    docker push docker-registry-dev.impdir.com/container-demo/build-cloud:3
+
+#### Run the sidecar and build-cloud locally
+
+##### Start the sidecar
+
+    docker run --rm -it -e SPRING_PROFILES_ACTIVE=dev --network=host build-sidecar-node-store
+
+##### Verify that the sidecar is working
+
+    $ curl -isS http://localhost:8082/health
+    HTTP/1.1 200
+    X-Application-Context: build-node-store:dev:8082
+    Content-Type: application/json;charset=UTF-8
+    Transfer-Encoding: chunked
+    Vary: Accept-Encoding
+    Date: Sun, 15 Jan 2017 08:48:52 GMT
+
+    {"status":"UP","localApplication":{"status":"UP"},"discoveryComposite":{"description":"Spring Cloud Eureka Discovery Client","status":"UP","discoveryClient":{"description":"Spring Cloud Eureka Discovery Client","status":"UP","services":["build-store","build-message-listeners","build-api","build-node-store","config-server","build-tools","build-imageserver","build-omc","discovery-server","build-scheduled-task","content-tool","build-webservices"]},"eureka":{"description":"Remote status from Eureka server","status":"UNKNOWN","applications":{"BUILD-TOOLS":8,"BUILD-IMAGESERVER":1,"BUILD-STORE":9,"BUILD-MESSAGE-LISTENERS":2,"BUILD-OMC":7,"DISCOVERY-SERVER":1,"BUILD-API":2,"BUILD-NODE-STORE":9,"CONFIG-SERVER":1,"BUILD-SCHEDULED-TASK":2,"CONTENT-TOOL":1,"BUILD-WEBSERVICES":13}}},"diskSpace":{"status":"UP","total":422623494144,"free":55056158720,"threshold":10485760},"refreshScope":{"status":"UP"},"hystrix":{"status":"UP"}}
+
+##### Start build-cloud
+
+    docker run --rm -it -e PORT=3001 -e NODE_ENV=production -e CONFIG_ENV=development --network=host build-cloud
+
+##### Verify that build-cloud is working
+
+    $ curl -isS http://localhost:3001/api/info
+    HTTP/1.1 200 OK
+    X-Powered-By: Build.com
+    X-XSS-Protection: 1; mode=block
+    Set-Cookie: CID=9ed3f680a82442b1afd74f3c1f83af15; Max-Age=315360000; Path=/; Expires=Wed, 13 Jan 2027 08:51:04 GMT; HttpOnly
+    Content-Type: application/json; charset=utf-8
+    Content-Length: 1082
+    ETag: W/"43a-Do5bbrnqmaSHwHD/jf15Gw"
+    Vary: Accept-Encoding
+    Date: Sun, 15 Jan 2017 08:51:06 GMT
+    Connection: keep-alive
+
+    {"environment":"development","server":{"hostname":"motzie","port":"3001","cpus":8,"multiThread":false,"reservedCpus":0,"threads":1},"processVersions":{"http_parser":"2.7.0","node":"6.2.2","v8":"5.0.71.52","uv":"1.9.1","zlib":"1.2.8","ares":"1.10.1-DEV","icu":"57.1","modules":"48","openssl":"1.0.2h"},"build":{"env":"development","hash":"8e75e64d61ca4bcd316ecbc85dbc9a311cb58cad","config":"development","repo":{"revision":"8e75e64d61ca4bcd316ecbc85dbc9a311cb58cad"},"git":{"commit":"8e75e64d61ca4bcd316ecbc85dbc9a311cb58cad"}},"request":{"host":"localhost:3001","isSSL":false},"webservices":{"environment":{"sidecar":true,"discovery":false,"host":"http://localhost:8082","pathPrefix":"/build-webservices"},"settings":{"environment":"development","version":"latest","sidecar":false,"service":"build-api"}},"greenhouseClient":{"environment":{"sidecar":false,"discovery":false,"host":"https://api.greenhouse.io/v1","authkey":"05f7cb93862097f9414827b8e9adf4c8"},"settings":{"environment":"development","version":"latest","service":"greenhouse"}},"site":{"skin":"build","theme":"build"}}
+
+##### Kill your local sidecar and build-cloud
+
+    docker kill $(docker ps | grep build | awk '{print $1}')
 
 #### Create build-cloud service
 
